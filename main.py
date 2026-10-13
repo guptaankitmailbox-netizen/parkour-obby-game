@@ -15,7 +15,13 @@ gravity = 0.8  # how much velocity_y increases each frame (pulls player down)
 jump_strength = -15  # negative = upward (pygame's y-axis goes down as positive)
 on_ground = False  # tracks if player is touching the "floor"
 
-ground_y = 500  # y position we treat as the floor for now
+# a list of platforms (x, y, width, height)
+platforms = [
+    pygame.Rect(0, 560, 800, 40),     # the floor
+    pygame.Rect(200, 460, 150, 20),   # first step
+    pygame.Rect(420, 380, 150, 20),   # second step
+    pygame.Rect(620, 300, 150, 20),   # third step
+]
 
 running = True
 while running:  # the game loop - repeats until we close the window
@@ -35,14 +41,18 @@ while running:  # the game loop - repeats until we close the window
     velocity_y += gravity  # gravity keeps pulling player down every frame
     player.y += int(velocity_y)  # apply vertical movement
 
-    # check if player hit the "ground"
-    if player.y >= ground_y:
-        player.y = ground_y
-        velocity_y = 0
-        on_ground = True
+    # check each platform to see if we landed on it
+    on_ground = False
+    for platform in platforms:
+        if player.colliderect(platform) and velocity_y >= 0:
+            player.bottom = platform.top  # sit on top of the platform
+            velocity_y = 0
+            on_ground = True
     
     screen.fill((30, 30, 30))  # clear screen each frame (dark gray background)
     pygame.draw.rect(screen, (0, 200, 0), player)  # draw player as a green square
+    for platform in platforms:
+        pygame.draw.rect(screen, (150, 150, 150), platform)  # draw platforms in gray
     pygame.display.flip()  # show everything we just drew
 
     clock.tick(60)  # limit the loop to 60 times per second
