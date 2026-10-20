@@ -22,6 +22,7 @@ A 2D platformer where the player jumps across platforms and obstacles of increas
 - [x] Player movement (left/right)
 - [x] Gravity and jumping
 - [x] Platforms
-- [ ] Obstacles (moving platforms, lava)
+- [x] Lava and respawn
+- [ ] Moving platforms
 - [ ] Tiered difficulty levels
 - [ ] Checkpoints

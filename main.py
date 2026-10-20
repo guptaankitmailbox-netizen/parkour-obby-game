@@ -6,8 +6,11 @@ screen = pygame.display.set_mode((800, 600))  # create the game window (width, h
 pygame.display.set_caption("Obby Game")  # set the window title
 clock = pygame.time.Clock()  # helps control game speed (frames per second)
 
+# where the player starts and respawns
+spawn_x, spawn_y = 100, 500
+
 # player's position and size (x, y, width, height)
-player = pygame.Rect(100, 100, 40, 40)
+player = pygame.Rect(spawn_x, spawn_y, 40, 40)
 speed = 5  # how many pixels the player moves per frame
 
 velocity_y = 0  # vertical speed (how fast player is moving up/down)
@@ -17,11 +20,24 @@ on_ground = False  # tracks if player is touching the "floor"
 
 # a list of platforms (x, y, width, height)
 platforms = [
-    pygame.Rect(0, 560, 800, 40),     # the floor
+    pygame.Rect(0, 560, 300, 40),     # floor, left part
+    pygame.Rect(500, 560, 300, 40),   # floor, right part (gap in the middle!)
     pygame.Rect(200, 460, 150, 20),   # first step
     pygame.Rect(420, 380, 150, 20),   # second step
     pygame.Rect(620, 300, 150, 20),   # third step
 ]
+
+# kill bricks: touching these sends you back to spawn
+lava = [
+    pygame.Rect(300, 580, 200, 20),   # lava in the gap of the floor
+]
+
+def respawn():
+    """Put the player back at the start and stop any movement."""
+    global velocity_y
+    player.x, player.y = spawn_x, spawn_y
+    velocity_y = 0
+
 
 running = True
 while running:  # the game loop - repeats until we close the window
@@ -48,11 +64,22 @@ while running:  # the game loop - repeats until we close the window
             player.bottom = platform.top  # sit on top of the platform
             velocity_y = 0
             on_ground = True
+
+    # check lava: touching it means respawn
+    for brick in lava:
+        if player.colliderect(brick):
+            respawn()
+
+    # also respawn if the player falls off the bottom of the screen
+    if player.top > 600:
+        respawn()
     
     screen.fill((30, 30, 30))  # clear screen each frame (dark gray background)
-    pygame.draw.rect(screen, (0, 200, 0), player)  # draw player as a green square
     for platform in platforms:
         pygame.draw.rect(screen, (150, 150, 150), platform)  # draw platforms in gray
+    for brick in lava:
+        pygame.draw.rect(screen, (220, 40, 40), brick)  # draw lava in red
+    pygame.draw.rect(screen, (0, 200, 0), player)  # draw player as a green square
     pygame.display.flip()  # show everything we just drew
 
     clock.tick(60)  # limit the loop to 60 times per second
