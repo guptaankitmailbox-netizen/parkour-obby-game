@@ -18,13 +18,17 @@ gravity = 0.8  # how much velocity_y increases each frame (pulls player down)
 jump_strength = -15  # negative = upward (pygame's y-axis goes down as positive)
 on_ground = False  # tracks if player is touching the "floor"
 
-# a list of platforms (x, y, width, height)
+# static platforms (x, y, width, height)
 platforms = [
     pygame.Rect(0, 560, 300, 40),     # floor, left part
-    pygame.Rect(500, 560, 300, 40),   # floor, right part (gap in the middle!)
+    pygame.Rect(500, 560, 300, 40),   # floor, right part
     pygame.Rect(200, 460, 150, 20),   # first step
-    pygame.Rect(420, 380, 150, 20),   # second step
     pygame.Rect(620, 300, 150, 20),   # third step
+]
+
+# moving platforms: each one is a dictionary storing its shape + movement info
+moving_platforms = [
+    {"rect": pygame.Rect(420, 380, 100, 20), "speed": 2, "left": 400, "right": 660},
 ]
 
 # kill bricks: touching these sends you back to spawn
@@ -56,10 +60,17 @@ while running:  # the game loop - repeats until we close the window
 
     velocity_y += gravity  # gravity keeps pulling player down every frame
     player.y += int(velocity_y)  # apply vertical movement
+    
+    # move the moving platforms back and forth
+    for mp in moving_platforms:
+        mp["rect"].x += mp["speed"]
+        if mp["rect"].left < mp["left"] or mp["rect"].right > mp["right"]:
+            mp["speed"] *= -1  # reverse direction at the edges
 
     # check each platform to see if we landed on it
     on_ground = False
-    for platform in platforms:
+    all_platforms = platforms + [mp["rect"] for mp in moving_platforms]
+    for platform in all_platforms:
         if player.colliderect(platform) and velocity_y >= 0:
             player.bottom = platform.top  # sit on top of the platform
             velocity_y = 0
@@ -77,6 +88,8 @@ while running:  # the game loop - repeats until we close the window
     screen.fill((30, 30, 30))  # clear screen each frame (dark gray background)
     for platform in platforms:
         pygame.draw.rect(screen, (150, 150, 150), platform)  # draw platforms in gray
+    for mp in moving_platforms:
+        pygame.draw.rect(screen, (100, 160, 255), mp["rect"])  # moving platforms in blue
     for brick in lava:
         pygame.draw.rect(screen, (220, 40, 40), brick)  # draw lava in red
     pygame.draw.rect(screen, (0, 200, 0), player)  # draw player as a green square
