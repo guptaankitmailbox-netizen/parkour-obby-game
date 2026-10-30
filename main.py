@@ -63,7 +63,16 @@ while running:  # the game loop - repeats until we close the window
     
     # move the moving platforms back and forth
     for mp in moving_platforms:
+        standing_on_it = (
+            player.bottom == mp["rect"].top
+            and player.right > mp["rect"].left
+            and player.left < mp["rect"].right
+        )
         mp["rect"].x += mp["speed"]
+
+        if standing_on_it:
+            player.x += mp["speed"]  # NEW: carry the player along with it
+            
         if mp["rect"].left < mp["left"] or mp["rect"].right > mp["right"]:
             mp["speed"] *= -1  # reverse direction at the edges
 
