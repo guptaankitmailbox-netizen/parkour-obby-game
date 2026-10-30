@@ -36,6 +36,11 @@ lava = [
     pygame.Rect(300, 580, 200, 20),   # lava in the gap of the floor
 ]
 
+# NEW: checkpoints, each remembers if it has been activated yet
+checkpoints = [
+    {"rect": pygame.Rect(690, 260, 20, 40), "active": False},  # on top of the third step
+]
+
 def respawn():
     """Put the player back at the start and stop any movement."""
     global velocity_y
@@ -72,7 +77,7 @@ while running:  # the game loop - repeats until we close the window
 
         if standing_on_it:
             player.x += mp["speed"]  # NEW: carry the player along with it
-            
+
         if mp["rect"].left < mp["left"] or mp["rect"].right > mp["right"]:
             mp["speed"] *= -1  # reverse direction at the edges
 
@@ -85,6 +90,12 @@ while running:  # the game loop - repeats until we close the window
             velocity_y = 0
             on_ground = True
 
+     # NEW: check checkpoints - touching one saves it as your new spawn point
+    for cp in checkpoints:
+        if player.colliderect(cp["rect"]):
+            cp["active"] = True  # remember it's been reached (changes its color)
+            spawn_x, spawn_y = cp["rect"].x, cp["rect"].y  # update where we respawn
+    
     # check lava: touching it means respawn
     for brick in lava:
         if player.colliderect(brick):
