@@ -25,4 +25,4 @@ A 2D platformer where the player jumps across platforms and obstacles of increas
 - [x] Lava and respawn
 - [x] Moving platforms (player rides them)
 - [x] Checkpoints
-- [ ] Tiered difficulty levels
+- [x] Tiered difficulty levels
